@@ -1,4 +1,47 @@
-# 第一种helloworld
+
+翻译者：林雨村
+
+时间：2019-10-15至
+
+log
+
+# 目录
+
+<!-- TOC -->
+
+- [目录](#目录)
+- [1. helloworld](#1-helloworld)
+            - [1.1. 讨论](#11-讨论)
+- [2. helloword的另一个版本](#2-helloword的另一个版本)
+- [3. the scala REPL](#3-the-scala-repl)
+- [4. 两种类型的变量](#4-两种类型的变量)
+    - [4.1. val和var的不同：](#41-val和var的不同)
+- [5. 显式指明类型](#5-显式指明类型)
+- [6. scala的内建类型](#6-scala的内建类型)
+    - [6.1. 数据类型以及他们的范围：](#61-数据类型以及他们的范围)
+    - [6.2. 大数：BigInt and BigDecimal](#62-大数bigint-and-bigdecimal)
+    - [6.3. String and Char](#63-string-and-char)
+- [7. String](#7-string)
+- [8. 命令行I/O](#8-命令行io)
+    - [8.1. 输出](#81-输出)
+    - [8.2. 输入](#82-输入)
+- [9. 流程控制](#9-流程控制)
+    - [9.1. if](#91-if)
+    - [9.2. for](#92-for)
+        - [9.2.1. 对map使用for和foreach](#921-对map使用for和foreach)
+    - [9.3. match表达式](#93-match表达式)
+    - [try/catch/finally expression](#trycatchfinally-expression)
+- [Classes](#classes)
+    - [基础类的构造器](#基础类的构造器)
+    - [val使得字段只读](#val使得字段只读)
+
+<!-- /TOC -->
+
+# 1. helloworld
+
+[↑↑](#目录)
+
+
 ```scala
 object Hello {
     def main(args: Array[String]) = {
@@ -21,7 +64,7 @@ $ scalac Hello.scala
 $ scala Hello
 ```
 
-#### 讨论
+#### 1.1. 讨论
 
 ```scala
 object Hello {
@@ -49,7 +92,9 @@ public class Hello {
 ```
 scala 运行在jvm上，并且可以使用已经存在的java库。
 
-# helloword的另一个版本
+# 2. helloword的另一个版本
+
+[↑↑](#目录)
 
 scala提供了一个更加方便的方式，不用写main函数，只需要继承APP trait，就像下面的：
 ```scala
@@ -87,7 +132,9 @@ Hello, Al
 * **args**是一个数组，并且args是一个对象，所以你访问其元素使用圆括号。args（0），args（1）
 
 
-# the scala REPL
+# 3. the scala REPL
+
+[↑↑](#目录)
 
 REPL(Read-Evaluate-Print-Loop)其实就是终端交互，通过命令行输入实现.
 
@@ -123,7 +170,9 @@ z: Int = 5
 
 For more information on the Scala REPL, see the [Scala REPL overview](https://docs.scala-lang.org/overviews/repl/overview.html)
 
-# 两种类型的变量
+# 4. 两种类型的变量
+
+[↑↑](#目录)
 
 Scala用两种类型的变量：
 
@@ -137,7 +186,10 @@ var i = 42        // mutable
 val p = new Person("Joel Fleischman")
 ```
 
-## val和var的不同：
+## 4.1. val和var的不同：
+
+[↑↑](#目录)
+
 ```
 scala> val a = 'a'
 a: Char = a
@@ -166,7 +218,9 @@ age: Int = 19
 ```
 
 
-# 显式指明类型
+# 5. 显式指明类型
+
+[↑↑](#目录)
 
 编译器可以自动分辨等号右边的类型，你也可以直接指明变量的类型
 
@@ -190,7 +244,10 @@ val p: Person = new Person("Candy")   // unnecessarily verbose
 
 在一些特定的情况下，你最好指定类型，比如使用第三方库。有些时候编译器也会错误的假定你的变量类型，这时候你必须显式地指明类型。
 
-# scala的内建类型
+# 6. scala的内建类型
+
+[↑↑](#目录)
+
 
 注意，Scala的数据类型都是对象，不是基本数据类型。
 ```
@@ -203,7 +260,7 @@ val f: Float = 3.0
 ```
 Int和Double是默认的数字类型。若你想使用Long，Short等，你就要显式的指明。
 
-## 数据类型以及他们的范围：
+## 6.1. 数据类型以及他们的范围：
 
 
 Data Type | Possible Values| 
@@ -218,7 +275,7 @@ Double|	64-bit IEEE 754 double-precision float4.94065645841246544e-324d to 1.797
 Char|	16-bit unsigned Unicode character (0 to 2^16-1, inclusive)0 to 65,535|
 String|	a sequence of Char|
 
-## 大数：BigInt and BigDecimal
+## 6.2. 大数：BigInt and BigDecimal
 
 ```
 var b = BigInt(1234567890)
@@ -240,7 +297,8 @@ scala> b += 1
 scala> println(b)
 1234567891
 ```
-## String and Char
+
+## 6.3. String and Char
 隐式声明
 ```
 val name = "Bill"
@@ -253,7 +311,9 @@ val c: Char = 'a'
 ```
 
 
-# String
+# 7. String
+
+[↑↑](#目录)
 
 String有很多美妙的特性，但是我们想花一点时间突出介绍两个重要的特性。
 
@@ -323,9 +383,12 @@ seven years ago
 our fathers ...
 ```
 
-# 命令行I/O
+# 8. 命令行I/O
 
-## 输出
+[↑↑](#目录)
+
+
+## 8.1. 输出
 ```scala
 //As we’ve already shown, you write output to standard out (STDOUT) using println:
 
@@ -338,7 +401,8 @@ print("Hello without newline")
 System.err.println("yikes, an error happened")
 ```
 >Because println is so commonly used, there’s no need to import it. The same is true of other commonly-used data types like String, Int, Float, etc.
-## 输入
+
+## 8.2. 输入
 
 输入的最简单方式就是使用 **readline** 函数。
 你首先要import：
@@ -370,9 +434,13 @@ Enter your last name: Alexander
 Your name is Alvin Alexander
 ```
 
-# 流程控制
+# 9. 流程控制
 
-## if
+
+[↑↑](#目录)
+
+
+## 9.1. if
 
 一个基本的scala if：
 ```scala
@@ -414,7 +482,7 @@ val minValue = if (a < b) a else b
 基于此，scala不要求特定的三元操作。
 返回返回值的行称为表达式，而不返回返回值的行称为语句。函数式编程中，总是要求返回表达式。
 
-## for
+## 9.2. for
 scala的for循环能用来迭代集合中的元素。
 ```scala
 scala> val nums = Seq(1,2,3)
@@ -434,7 +502,8 @@ people.foreach(println)//这充分说明了,在函数式编程里,函数是可�
 ```
 
 绝大多数的集合类都有foreach的实现。
-### 对map使用for和foreach
+
+### 9.2.1. 对map使用for和foreach
 
 ```scala
 val ratings = Map(
@@ -451,5 +520,239 @@ ratings.foreach {
 }//明显是匿名函数的写法
 ```
 
+scala中，for不仅仅一个for-loop，也可以是一个for-expression。它能从一个已经存在的集合中创造一个新的集合。
+举个例子，给出一个整数的列表
+```scala
+val nums = Seq(1,2,3)
+```
+你可以创建新的所有值都二倍的列表
+```scala
+val doubledNums = for (n <- nums) yield n * 2
+```
+在REPL中的表现
+```scala
+scala> val doubledNums = for (n <- nums) yield n * 2
+doubledNums: Seq[Int] = List(2, 4, 6)
+```
+> Using yield after for is the “secret sauce” that says, “I want to yield a new collection from the existing collection that I’m iterating over in the for-expression, using the algorithm shown.”
 
-TODO 翻译进度https://docs.scala-lang.org/overviews/scala-book/for-expressions.html
+yield也是可以用花括号包围。
+```scala
+val capNames = for (name <- names) yield name.drop(1).capitalize
+
+val capNames = for (name <- names) yield { name.drop(1).capitalize }
+```
+
+## 9.3. match表达式
+
+scala中有match表达式的概念，在很多时候它很像java中的swtich语句。
+
+```scala
+// i is an integer
+i match {
+    case 1  => println("January")
+    case 2  => println("February")
+    case 3  => println("March")
+    case 4  => println("April")
+    case 5  => println("May")
+    case 6  => println("June")
+    case 7  => println("July")
+    case 8  => println("August")
+    case 9  => println("September")
+    case 10 => println("October")
+    case 11 => println("November")
+    case 12 => println("December")
+    // catch the default with a variable so you can print it
+    case _  => println("Invalid month")//Any other value falls down to the _ case, which is the catch-all, default case.
+}
+```
+match expression也能有返回值。
+```scala
+val monthName = i match {
+    case 1  => "January"
+    case 2  => "February"
+    case 3  => "March"
+    case 4  => "April"
+    case 5  => "May"
+    case 6  => "June"
+    case 7  => "July"
+    case 8  => "August"
+    case 9  => "September"
+    case 10 => "October"
+    case 11 => "November"
+    case 12 => "December"
+    case _  => "Invalid month"
+}
+```
+match也可以作为方法体。
+```scala
+def convertBooleanToStringMessage(bool: Boolean): String = bool match {
+    case true => "you said true"
+    case false => "you said false"
+}
+
+val result = convertBooleanToStringMessage(true)
+println(result)
+```
+match也可以和if相结合，提供更强大的模式匹配，当然这个写法比较奇怪，你只需记住。
+```scala
+count match {
+    case 1 => println("one, a lonely number")
+    case x if (x == 2 || x == 3) => println("two's company, three's a crowd")
+    case x if (x > 3) => println("4+, that's a party")
+    case _ => println("i'm guessing your number is zero or less")
+}
+
+//另外的一些例子
+count match {
+    case 1 => {
+        println("one, a lonely number")
+    }
+    case x if x == 2 || x == 3 => {
+        println("two's company, three's a crowd")
+    }
+    case x if x > 3 => {
+        println("4+, that's a party")
+    }
+    case _ => {
+        println("i'm guessing your number is zero or less")
+    }
+}
+
+count match {
+    case 1 => 
+        println("one, a lonely number")
+    case x if x == 2 || x == 3 => 
+        println("two's company, three's a crowd")
+    case x if x > 3 => 
+        println("4+, that's a party")
+    case _ => 
+        println("i'm guessing your number is zero or less")
+}
+```
+
+如何匹配范围内的数字的例子
+```scala
+//十分口语化
+i match {
+  case a if 0 to 9 contains a => println("0-9 range: " + a)
+  case b if 10 to 19 contains b => println("10-19 range: " + a)
+  case c if 20 to 29 contains c => println("20-29 range: " + a)
+  case _ => println("Hmmm...")
+}
+
+```
+在if中使用类的字段也是可以的
+```scala
+stock match {
+  case x if (x.symbol == "XYZ" && x.price < 20) => buy(x)
+  case x if (x.symbol == "XYZ" && x.price > 50) => sell(x)
+  case x => doNothing(x)
+}
+```
+## try/catch/finally expression
+
+[↑↑](#目录)
+
+
+与Java一样，Scala也有try/catch/finally结构，允许您捕获和管理异常。主要区别在于，为了一致性，Scala使用与表达式match相同的语法:case语句来匹配可能出现的不同异常。
+
+
+```scala
+
+    // your scala code here
+} 
+catch {
+    case foo: FooException => handleFooException(foo)
+    case bar: BarException => handleBarException(bar)
+    case _: Throwable => println("Got some other kind of Throwable exception")
+} finally {
+    // your scala code here, such as closing a database connection
+    // or file handle
+}
+```
+# Classes
+
+[↑↑](#目录)
+
+## 基础类的构造器
+
+下面是类的构造器，它定义了两个参数，firstName and lastName
+
+```scala
+
+class Person(var firstName:String ,var lastName:String)
+
+```
+
+创建一个新的person实例：
+```scala
+
+val p= new Person("bill","panner")
+
+
+```
+由于定义的参数是**var**，所以你是可以修改它的。
+```scala
+scala> p.firstName = "William"
+p.firstName: String = William
+
+scala> p.lastName = "Bernheim"
+p.lastName: String = Bernheim
+```
+
+粗略对应java的话就是：
+```java
+public class Person {
+
+    private String firstName;
+    private String lastName;
+    
+    public Person(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    
+    public String getFirstName() {
+        return this.firstName;
+    }
+    
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    public String getLastName() {
+        return this.lastName;
+    }
+    
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    
+}
+```
+
+## val使得字段只读
+
+```scala
+class Person(val firstName: String, val lastName: String)
+```
+
+```scala
+scala> p.firstName = "Fred"
+<console>:12: error: reassignment to val
+       p.firstName = "Fred"
+                   ^
+
+scala> p.lastName = "Jones"
+<console>:12: error: reassignment to val
+       p.lastName = "Jones"
+                  ^
+```
+
+> Tip:如果你想使用scala写OOP代码,就使用var定义字段以便更改.若你想写FP代码,你一般会用val.更多的下面介绍.
+
+TODO https://docs.scala-lang.org/overviews/scala-book/classes.html#basic-class-constructor
+
+
+
