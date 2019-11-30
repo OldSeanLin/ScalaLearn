@@ -34,6 +34,7 @@ log
 - [Classes](#classes)
     - [基础类的构造器](#基础类的构造器)
     - [val使得字段只读](#val使得字段只读)
+    - [类的构造器](#类的构造器)
 
 <!-- /TOC -->
 
@@ -752,7 +753,1269 @@ scala> p.lastName = "Jones"
 
 > Tip:如果你想使用scala写OOP代码,就使用var定义字段以便更改.若你想写FP代码,你一般会用val.更多的下面介绍.
 
-TODO https://docs.scala-lang.org/overviews/scala-book/classes.html#basic-class-constructor
+## 类的构造器
+
+在scala里，基本的构造器可由以下组成：
+* 构造器参数
+* 调配类体中的函数
+* 在类体中执行的语句或表达式
+
+```scala
+class Person(var firstName: String, var lastName: String) {
+
+    println("the constructor begins")
+
+    // 'public' access by default
+    var age = 0
+
+    // some class fields
+    private val HOME = System.getProperty("user.home")
+
+    // some methods
+    override def toString(): String = s"$firstName $lastName is $age years old"
+
+    def printHome(): Unit = println(s"HOME = $HOME")    
+    def printFullName(): Unit = println(this) 
+
+    printHome()
+    printFullName()
+    println("you've reached the end of the constructor")
+
+}
+```
+```scala
+scala> val p = new Person("Kim", "Carnes")
+the constructor begins
+HOME = /Users/al
+Kim Carnes is 0 years old
+you've reached the end of the constructor
+p: Person = Kim Carnes is 0 years old
+
+scala> p.age
+res0: Int = 0
+
+scala> p.age = 36
+p.age: Int = 36
+
+scala> p
+res1: Person = Kim Carnes is 36 years old
+
+scala> p.printHome
+HOME = /Users/al
+
+scala> p.printFullName
+Kim Carnes is 36 years old
+```
+当你从其他verbose转过来，你会觉得这种写法有些奇怪，但是你多写几次就能理解其逻辑性以方便性。
+
+在你离开此章之前，这里还有一些例子：
+```
+class Pizza (var crustSize: Int, var crustType: String)
+
+// a stock, like AAPL or GOOG
+class Stock(var symbol: String, var price: BigDecimal)
+
+// a network socket
+class Socket(val timeout: Int, val linger: Int) {
+    override def toString = s"timeout: $timeout, linger: $linger"
+}
+
+class Address (
+    var street1: String,
+    var street2: String,
+    var city: String, 
+    var state: String
+)
+```
+
+# 辅助类
+
+辅助类（auxiliary Scala class），在我看来很像java中的重载构造函数。用this函数定义辅助类。
+
+关于辅助类，你只需要知道两条规则：
+* 每个辅助构造函数必须有不同的声明--不同的参数列表
+* 每个构造函数必须调用之前的构造函数。
+
+```scala
+val DefaultCrustSize = 12
+val DefaultCrustType = "THIN"
+
+// the primary constructor
+class Pizza (var crustSize: Int, var crustType: String) {
+
+    // one-arg auxiliary constructor
+    def this(crustSize: Int) {
+        this(crustSize, DefaultCrustType)
+    }
+
+    // one-arg auxiliary constructor
+    def this(crustType: String) {
+        this(DefaultCrustSize, crustType)
+    }
+
+    // zero-arg auxiliary constructor
+    def this() {
+        this(DefaultCrustSize, DefaultCrustType)
+    }
+
+    override def toString = s"A $crustSize inch pizza with a $crustType crust"
+
+}
+```
+
+```scala
+val p1 = new Pizza(DefaultCrustSize, DefaultCrustType)
+val p2 = new Pizza(DefaultCrustSize)
+val p3 = new Pizza(DefaultCrustType)
+val p4 = new Pizza
+```
+
+## NOTES
+两条重要的说明：
+* The DefaultCrustSize and DefaultCrustType variables are not a preferred way to handle this situation, but because we haven’t shown how to handle enumerations yet, we use this approach to keep things simple.
+* Auxiliary class constructors are a great feature, but because you can use default values for constructor parameters, you won’t need to use this feature very often. The next lesson demonstrates how using default parameter values like this often makes auxiliary constructors unnecessary:
+
+# 应用构造器默认参数
+[↑↑](#目录)
+先前我们展示定义Sockets
+```scala
+class Socket(var timeout: Int, var linger: Int) {
+    override def toString = s"timeout: $timeout, linger: $linger"
+}
+```
+接下来我使用默认参数定义
+```
+class Socket(var timeout: Int = 2000, var linger: Int = 3000) {
+    override def toString = s"timeout: $timeout, linger: $linger"
+}
+```
+通过定义默认参数，我们有如下new
+```scala
+new Socket()
+new Socket(1000)
+new Socket(4000, 6000)
+```
+```scala
+scala> new Socket()
+res0: Socket = timeout: 2000, linger: 3000
+
+scala> new Socket(1000)
+res1: Socket = timeout: 1000, linger: 3000
+
+scala> new Socket(4000, 6000)
+res2: Socket = timeout: 4000, linger: 6000
+```
+当然更具可读性的就是如下new
+```scala
+val s = new Socket(timeout=2000, linger=3000)
+```
+
+# 初识scala函数
+
+## 定义一个带有一个输入的函数
+
+定义一个方法，输入一个a参数，返回其两倍数
+```
+def double(a: Int) = a * 2
+```
+
+## 定义函数的返回类型
+
+```scala
+
+def double(a: Int): Int = a * 2
+
+def add(a: Int, b: Int, c: Int): Int = a + b + c
+```
+
+## 多行函数
+如果函数式单行的，你可像上面的模式书写函数。否则你需要花括号包裹作用域。
+
+```scala
+def addThenDouble(a: Int, b: Int): Int = {
+    val sum = a + b
+    val doubled = sum * 2
+    doubled
+}
+```
+上面的例子可以看出，最后一行的语句或者表达式就是返回的值。
+
+# Enumerations（完整的pizza类）
+Enumerations是一个十分有用的工具，用来创建一组实例。things like the days of the week, months in a year, suits in a deck of cards, etc.
+
+我们有一点超前，因为没有解释语法。但是下面是创建week的
+enumeration
+
+```scala 
+  sealed trait DayOfWeek
+case object Sunday extends DayOfWeek
+case object Monday extends DayOfWeek
+case object Tuesday extends DayOfWeek
+case object Wednesday extends DayOfWeek
+case object Thursday extends DayOfWeek
+case object Friday extends DayOfWeek
+case object Saturday extends DayOfWeek
+```
+
+如同展示的那样，我们声明了一个基础的trait，然后被每一个需要的case object继承。
+
+trait和case object在之后我们讨论。
+
+下面我们创建pizza相关的enumerations
+```scala 
+ sealed trait Topping
+case object Cheese extends Topping
+case object Pepperoni extends Topping
+case object Sausage extends Topping
+case object Mushrooms extends Topping
+case object Onions extends Topping
+
+sealed trait CrustSize
+case object SmallCrustSize extends CrustSize
+case object MediumCrustSize extends CrustSize
+case object LargeCrustSize extends CrustSize
+
+sealed trait CrustType
+case object RegularCrustType extends CrustType
+case object ThinCrustType extends CrustType
+case object ThickCrustType extends CrustType
+
+
+```
+
+之后我们可以定义pizza类如下：
+```scala 
+  class Pizza (
+    var crustSize: CrustSize = MediumCrustSize, 
+    var crustType: CrustType = RegularCrustType
+) {
+
+    // ArrayBuffer is a mutable sequence (list)
+    val toppings = scala.collection.mutable.ArrayBuffer[Topping]()
+
+    def addTopping(t: Topping): Unit = toppings += t
+    def removeTopping(t: Topping): Unit = toppings -= t
+    def removeAllToppings(): Unit = toppings.clear()
+
+}
+```
+
+完整的带main函数的pizza类如下：
+```scala 
+  import scala.collection.mutable.ArrayBuffer
+
+sealed trait Topping
+case object Cheese extends Topping
+case object Pepperoni extends Topping
+case object Sausage extends Topping
+case object Mushrooms extends Topping
+case object Onions extends Topping
+
+sealed trait CrustSize
+case object SmallCrustSize extends CrustSize
+case object MediumCrustSize extends CrustSize
+case object LargeCrustSize extends CrustSize
+
+sealed trait CrustType
+case object RegularCrustType extends CrustType
+case object ThinCrustType extends CrustType
+case object ThickCrustType extends CrustType
+
+class Pizza (
+    var crustSize: CrustSize = MediumCrustSize, 
+    var crustType: CrustType = RegularCrustType
+) {
+
+    // ArrayBuffer is a mutable sequence (list)
+    val toppings = ArrayBuffer[Topping]()
+
+    def addTopping(t: Topping): Unit = toppings += t
+    def removeTopping(t: Topping): Unit = toppings -= t
+    def removeAllToppings(): Unit = toppings.clear()
+
+    override def toString(): String = {
+        s"""
+        |Crust Size: $crustSize
+        |Crust Type: $crustType
+        |Toppings:   $toppings
+        """.stripMargin
+    }
+}
+
+// a little "driver" app
+object PizzaTest extends App {
+   val p = new Pizza
+   p.addTopping(Cheese)
+   p.addTopping(Pepperoni)
+   println(p)
+}
+```
+
+# trait
+
+[↑↑](#目录)
+前言：
+Scala traits are a great feature of the language. As you’ll see in the following lessons, you can use them just like a Java interface, and you can also use them like abstract classes that have real methods. Scala classes can also extend and “mix in” multiple traits.
+
+# 把trait当做接口使用
+
+想像你要写代码去给猫狗这样的动物建模，每个动物都有尾巴。你可以定义一个尾巴trait：
+```scala 
+
+trait TailWagger {
+    def startTail(): Unit
+    def stopTail(): Unit
+}
+ 
+```
+
+```java 
+  public interface TailWagger {
+    public void startTail();
+    public void stopTail();
+}
+```
+## 继承trait
+
+```scala 
+ class Dog extends TailWagger {
+    // the implemented methods
+    def startTail(): Unit = println("tail is wagging")
+    def stopTail(): Unit = println("tail is stopped")
+} 
+```
+
+或者简写
+```scala 
+  class Dog extends TailWagger {
+    def startTail() = println("tail is wagging")
+    def stopTail() = println("tail is stopped")
+}
+```
+
+## 多重继承
+
+你可将动物的很多特性分割成很多小的，逻辑上的，模块的组件。
+
+```scala 
+
+trait Speaker {
+    def speak(): String
+}
+
+trait TailWagger {
+    def startTail(): Unit
+    def stopTail(): Unit
+}
+
+trait Runner {
+    def startRunning(): Unit
+    def stopRunning(): Unit
+} 
+```
+
+你的狗可以继承这些属性，并且实现这些必要的方法。
+
+```scala 
+class Dog extends Speaker with TailWagger with Runner {
+
+    // Speaker
+    def speak(): String = "Woof!"
+
+    // TailWagger
+    def startTail(): Unit = println("tail is wagging")
+    def stopTail(): Unit = println("tail is stopped")
+
+    // Runner
+    def startRunning(): Unit = println("I'm running")
+    def stopRunning(): Unit = println("Stopped running")
+
+} 
+```
+
+Notice how **extends** and **with** are used to create a class from multiple traits:
+
+* **extends**继承第一个trait
+* **with**继承随后的trait
+
+但是scalatrait不是像java中的接口。。。
+
+# 使用trait就像抽象类
+
+
+[↑↑](#目录)
+
+In the previous lesson we showed how to use Scala traits like the original Java interface, but they have much more functionality than that. You can also add real, working methods to them and use them like abstract classes, or more accurately, as mixins.
+
+```scala
+trait Pet {
+    def speak { println("Yo") }   // concrete implementation of a speak method
+    def comeToMaster(): Unit      // abstract
+}
+
+
+class Dog(name: String) extends Pet {
+    def comeToMaster(): Unit = println("Woo-hoo, I'm coming!")
+}
+```
 
 
 
+## 重写一个被实现的方法。
+
+
+```scala
+class Cat extends Pet {
+    // override 'speak'
+    override def speak(): Unit = println("meow")
+    def comeToMaster(): Unit = println("That's not gonna happen.")
+}
+```
+
+在REPL中
+```scala
+scala> val c = new Cat
+c: Cat = Cat@1953f27f
+
+scala> c.speak
+meow
+
+scala> c.comeToMaster
+That's not gonna happen.
+```
+## 多重继承带有行为的traits
+
+```scala
+trait Speaker {
+    def speak(): String   //abstract
+}
+
+trait TailWagger {
+    def startTail(): Unit = println("tail is wagging")
+    def stopTail(): Unit = println("tail is stopped")
+}
+
+trait Runner {
+    def startRunning(): Unit = println("I'm running")
+    def stopRunning(): Unit = println("Stopped running")
+}
+//Now you can create a Dog class that extends all of those traits while providing behavior for the speak method:
+class Dog(name: String) extends Speaker with TailWagger with Runner {
+    def speak(): String = "Woof!"
+}
+//And here’s a Cat class:
+
+class Cat extends Speaker with TailWagger with Runner {
+    def speak(): String = "Meow"
+    override def startRunning(): Unit = println("Yeah ... I don't run")
+    override def stopRunning(): Unit = println("No need to stop")
+}
+
+```
+
+The REPL shows that this all works like you’d expect it to work. First, a Dog:
+```scala
+scala> d.speak
+res0: String = Woof!
+
+scala> d.startRunning
+I'm running
+
+scala> d.startTail
+tail is wagging
+```
+Then a Cat:
+```scala
+scala> val c = new Cat
+c: Cat = Cat@1b252afa
+
+scala> c.speak
+res1: String = Meow
+
+scala> c.startRunning
+Yeah ... I don't run
+
+scala> c.startTail
+tail is wagging
+```
+
+
+# 抽象类（abstract classes）
+[↑↑](#目录)
+
+scala的抽象类和java的抽象类是一样的，但是traits太强大了，所以你很少适应抽象类。事实上，你只会在以下情况下使用抽象类：
+* 你想创建一个要求构造函数参数的基础类
+* 你的代码会被java代码调用
+
+
+## scala traits 不允许构造器参数
+
+```scala
+// this won’t compile
+trait Animal(name: String)
+//Therefore, you need to use an abstract class whenever a base behavior must have constructor parameters:
+
+
+abstract class Animal(name: String)
+
+```
+
+
+但是，请注意类只能继承一个抽象类。
+
+## 当你的代码会被java代码调用
+java不认识trait，所以你的代码要想被java调用，就得用抽象函数。
+
+## 抽象类的语法
+
+抽象类的语法和trait完全一样。
+```scala
+abstract class Pet (name: String) {
+    def speak(): Unit = println("Yo")   // concrete implementation
+    def comeToMaster(): Unit            // abstract method
+}
+
+class Dog(name: String) extends Pet(name) {
+    override def speak() = println("Woof")
+    def comeToMaster() = println("Here I come!")
+}
+```
+
+
+注意参数name是由下向上传递的，所以name=‘fido’用dog传递给pet。
+```scala
+abstract class Pet (name: String) {
+    def speak { println(s"My name is $name") }
+}
+
+class Dog(name: String) extends Pet(name)
+
+val d = new Dog("Fido")
+d.speak
+
+
+scala> d.speak
+My name is Fido
+```
+# scala的集合
+
+你将经常使用的基础集合类有：
+
+class| description 
+---------|----------
+ArrayBuffer | 	an indexed, mutable sequence
+List | 	a linear (linked list), immutable sequence
+Vector | an indexed, immutable sequence 
+Map | 	the base Map (key/value pairs) class
+Set | 	the base Set class
+
+**map**和**set**可变和不可变的版本
+
+> In the following lessons on Scala collections classes, whenever we use the word immutable, it’s safe to assume that the class is intended for use in a functional programming (FP) style. With these classes you don’t modify the collection; you apply functional methods to the collection to create a new result. You’ll see what this means in the examples that follow.
+
+# ArrayBuffer
+[↑↑](#目录)
+
+如果你是从OOP来的移民，那么Arraybuffer就可能是你最方便的类。因为他是一个可变的序列，你可以用函数去改变它的内容，这些函数和java的序列是一样的额。
+
+```scala
+import scala.collection.mutable.ArrayBuffer
+
+val ints = ArrayBuffer[Int]()
+val names = ArrayBuffer[String]()
+```
+
+你可以有多种方式添加元素。
+
+```scala
+val ints = ArrayBuffer[Int]()
+ints += 1
+ints += 2
+
+```
+```scala
+scala> ints += 1
+res0: ints.type = ArrayBuffer(1)
+
+scala> ints += 2
+res1: ints.type = ArrayBuffer(1, 2)
+```
+
+也可以初始化添加元素
+
+```scala
+val nums = ArrayBuffer(1, 2, 3)
+
+
+//Here are a few ways you can add more elements to this ArrayBuffer:
+
+// add one element
+nums += 4
+
+// add multiple elements
+nums += 5 += 6
+
+// add multiple elements from another collection
+nums ++= List(7, 8, 9)
+
+```    
+
+也可以删除元素用-=和--=函数
+
+```scala
+// remove one element
+nums -= 9
+
+// remove multiple elements
+nums -= 7 -= 8
+
+// remove multiple elements using another collection
+nums --= Array(5, 6)
+```
+
+在REPL中
+
+```scala
+scala> import scala.collection.mutable.ArrayBuffer
+
+scala> val nums = ArrayBuffer(1, 2, 3)
+val nums: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3)
+
+scala> nums += 4
+val res0: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4)
+
+scala> nums += 5 += 6
+val res1: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4, 5, 6)
+
+scala> nums ++= List(7, 8, 9)
+val res2: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+scala> nums -= 9
+val res3: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4, 5, 6, 7, 8)
+
+scala> nums -= 7 -= 8
+val res4: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4, 5, 6)
+
+scala> nums --= Array(5, 6)
+val res5: ArrayBuffer[Int] = ArrayBuffer(1, 2, 3, 4)
+
+```
+
+## ArrayBuffe能干更多的活
+
+
+```scala
+val a = ArrayBuffer(1, 2, 3)         // ArrayBuffer(1, 2, 3)
+a.append(4)                          // ArrayBuffer(1, 2, 3, 4)
+a.append(5, 6)                       // ArrayBuffer(1, 2, 3, 4, 5, 6)
+a.appendAll(Seq(7,8))                // ArrayBuffer(1, 2, 3, 4, 5, 6, 7, 8)
+a.clear                              // ArrayBuffer()
+
+val a = ArrayBuffer(9, 10)           // ArrayBuffer(9, 10)
+a.insert(0, 8)                       // ArrayBuffer(8, 9, 10)
+a.insert(0, 6, 7)                    // ArrayBuffer(6, 7, 8, 9, 10)
+a.insertAll(0, Vector(4, 5))         // ArrayBuffer(4, 5, 6, 7, 8, 9, 10)
+a.prepend(3)                         // ArrayBuffer(3, 4, 5, 6, 7, 8, 9, 10)
+a.prepend(1, 2)                      // ArrayBuffer(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+a.prependAll(Array(0))               // ArrayBuffer(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+val a = ArrayBuffer.range('a', 'h')  // ArrayBuffer(a, b, c, d, e, f, g)
+a.remove(0)                          // ArrayBuffer(b, c, d, e, f, g)
+a.remove(2, 3)                       // ArrayBuffer(b, c, g)
+
+val a = ArrayBuffer.range('a', 'h')  // ArrayBuffer(a, b, c, d, e, f, g)
+a.trimStart(2)                       // ArrayBuffer(c, d, e, f, g)
+a.trimEnd(2)                         // ArrayBuffer(c, d, e)
+```
+
+# List
+[↑↑](#目录)
+
+List 是一个线性的，不可变的序列。那意味着你不能像链表一样改变它。任何时候你添加或删除元素，你都是从一个已经存在的List创建一个新的List。
+
+## Creating Lists 创建List
+```scala
+
+val ints = List(1, 2, 3)
+val names = List("Joel", "Chris", "Ed")
+```
+
+虽然没必要，但是你还是可以声明列表的类型
+
+```scala
+val ints: List[Int] = List(1, 2, 3)
+val names: List[String] = List("Joel", "Chris", "Ed")
+
+```
+
+## Adding elements to a List 添加元素
+
+因为他是不可变的，所以你的每次更改都会产生一个新的list，因此，你得用一个变量去接受他。
+
+```scala
+val a = List(1,2,3)
+//You prepend elements to a List like this:
+
+val b = 0 +: a
+//and this:
+
+val b = List(-1, 0) ++: a
+```
+
+```scala
+scala> val b = 0 +: a
+b: List[Int] = List(0, 1, 2, 3)
+
+scala> val b = List(-1, 0) ++: a
+b: List[Int] = List(-1, 0, 1, 2, 3)
+```
+
+> 因为它是一个单链表，因此你应该只用其预置的元素，而不是去改变它。它添加元素相对来说是一个缓慢的操作，尤其你对一个大序列进行操作。
+
+>**tips** 如果你想要预置和添加元素到不可变的序列，请用vector
+
+因为list是一个linked-class，所以不是用索引访问元素。如果你想使用索引访问元素，使用Vector和ArrayBuffer.
+
+## 怎么去记忆成员函数
+
+将“+”字符看成是代表序列的一边，所以当你使用+：你就知道列表list需要在右边.
+```scala
+0 +: a
+```
+相应的，：+列表就在左边
+
+```scala
+a:+4
+```
+
+一件很好的事情就是他们的名字是一致的，所以其他不可变的序列也是用一样的函数，就像Seq和Vector。
+
+## 怎么循环列表
+
+```scala
+val names = List("Joel", "Chris", "Ed")
+
+
+
+scala> for (name <- names) println(name)
+Joel
+Chris
+Ed
+
+```
+所有的序列类都可以用上面的方法遍历。
+
+
+# Vector
+
+[↑↑](#目录)
+
+
+Vector是可索引的，不可变的序列。
+你可以通过listOfPeople(999999)快速访问Vector。
+
+
+除了Vec是可索引的而List不可以外，两个类是一样的。
+
+```scala
+val nums = Vector(1, 2, 3, 4, 5)
+
+val strings = Vector("one", "two")
+
+val peeps = Vector(
+    Person("Bert"),
+    Person("Ernie"),
+    Person("Grover")
+)
+
+```
+
+它不可变，所以你添加新元素就得创建一个新的对象。
+
+```scala
+scala> val a = Vector(1,2,3)
+a: Vector[Int] = List(1, 2, 3)
+
+scala> val b = a :+ 4
+b: Vector[Int] = List(1, 2, 3, 4)
+
+scala> val b = a ++ Vector(4, 5)
+b: Vector[Int] = List(1, 2, 3, 4, 5)
+
+scala> val b = 0 +: a
+b: Vector[Int] = List(0, 1, 2, 3)
+
+scala> val b = Vector(-1, 0) ++: a
+b: Vector[Int] = List(-1, 0, 1, 2, 3)
+
+```
+vector不是linked-list
+
+
+# Map
+
+Scala has both mutable and immutable Map classes. In this lesson we’ll show how to use the mutable class.
+
+## Creating a mutable Map
+
+```scala
+
+//To use the mutable Map class, first import it:
+
+import scala.collection.mutable.Map
+//Then you can create a Map like this:
+
+val states = collection.mutable.Map("AK" -> "Alaska")
+```
+
+## Adding elements to a Map
+
+```scala
+scala> val states = collection.mutable.Map("AK" -> "Alaska")
+states: scala.collection.mutable.Map[String,String] = Map(AK -> Alaska)
+
+scala> states += ("AL" -> "Alabama")
+res0: states.type = Map(AL -> Alabama, AK -> Alaska)
+
+scala> states += ("AR" -> "Arkansas", "AZ" -> "Arizona")
+res1: states.type = Map(AZ -> Arizona, AL -> Alabama, AR -> Arkansas, AK -> Alaska)
+
+scala> states ++= Map("CA" -> "California", "CO" -> "Colorado")
+res2: states.type = Map(CO -> Colorado, AZ -> Arizona, AL -> Alabama, CA -> California, AR -> Arkansas, AK -> Alaska)
+
+```
+## Removing elements from a Map
+
+```scala
+scala> states -= "AR"
+res3: states.type = Map(CO -> Colorado, AZ -> Arizona, AL -> Alabama, CA -> California, AK -> Alaska)
+
+scala> states -= ("AL", "AZ")
+res4: states.type = Map(CO -> Colorado, CA -> California, AK -> Alaska)
+
+scala> states --= List("AL", "AZ")
+res5: states.type = Map(CO -> Colorado, CA -> California, AK -> Alaska)
+```
+## Updating Map elements
+
+```scala
+scala> states("AK") = "Alaska, A Really Big State"
+
+scala> states
+res6: scala.collection.mutable.Map[String,String] = Map(CO -> Colorado, CA -> California, AK -> Alaska, A Really Big State)
+```
+## Traversing a Map
+
+There are several different ways to iterate over the elements in a map. Given a sample map:
+
+```scala
+val ratings = Map(
+    "Lady in the Water"-> 3.0, 
+    "Snakes on a Plane"-> 4.0,
+    "You, Me and Dupree"-> 3.5
+)
+```
+
+a nice way to loop over all of the map elements is with this for loop syntax:
+
+```scala
+for ((k,v) <- ratings) println(s"key: $k, value: $v")
+```
+Using a match expression with the foreach method is also very readable:
+
+```scala
+
+ratings.foreach {
+    case(movie, rating) => println(s"key: $movie, value: $rating")
+}
+```
+
+看(MapClassDocumentation)[https://docs.scala-lang.org/overviews/collections-2.13/maps.html]获得更多例子和信息
+
+
+# set
+元素不可重复。
+
+Scala has both mutable and immutable Set classes. In this lesson we’ll show how to use the mutable class.
+
+
+## Adding elements to a Set
+To use a mutable Set, first import it:
+
+```scala
+scala> val set = scala.collection.mutable.Set[Int]()
+val set: scala.collection.mutable.Set[Int] = Set()
+
+scala> set += 1
+val res0: scala.collection.mutable.Set[Int] = Set(1)
+
+scala> set += 2 += 3
+val res1: scala.collection.mutable.Set[Int] = Set(1, 2, 3)
+
+scala> set ++= Vector(4, 5)
+val res2: scala.collection.mutable.Set[Int] = Set(1, 5, 2, 3, 4)
+```
+
+如果你要添加元素在集合中已经存在，则会被忽视。
+
+Set also has an add method that returns true if an element is added to a set, and false if it wasn’t added. The REPL shows how it works:
+
+```scala
+scala> set.add(6)
+res4: Boolean = true
+
+scala> set.add(5)
+res5: Boolean = false
+```
+
+## Deleting elements from a Set
+
+You remove elements from a set using the -= and --= methods, as shown in the following examples:
+
+```scala
+scala> val set = scala.collection.mutable.Set(1, 2, 3, 4, 5)
+set: scala.collection.mutable.Set[Int] = Set(2, 1, 4, 3, 5)
+
+// one element
+scala> set -= 1
+res0: scala.collection.mutable.Set[Int] = Set(2, 4, 3, 5)
+
+// two or more elements (-= has a varargs field)
+scala> set -= (2, 3)
+res1: scala.collection.mutable.Set[Int] = Set(4, 5)
+
+// multiple elements defined in another sequence
+scala> set --= Array(4,5)
+res2: scala.collection.mutable.Set[Int] = Set()
+```
+
+
+There are more methods for working with sets, including clear and remove, as shown in these examples:
+
+```scala
+scala> val set = scala.collection.mutable.Set(1, 2, 3, 4, 5)
+set: scala.collection.mutable.Set[Int] = Set(2, 1, 4, 3, 5)
+
+// clear
+scala> set.clear()
+
+scala> set
+res0: scala.collection.mutable.Set[Int] = Set()
+
+// remove
+scala> val set = scala.collection.mutable.Set(1, 2, 3, 4, 5)
+set: scala.collection.mutable.Set[Int] = Set(2, 1, 4, 3, 5)
+
+scala> set.remove(2)
+res1: Boolean = true
+
+scala> set
+res2: scala.collection.mutable.Set[Int] = Set(1, 4, 3, 5)
+
+scala> set.remove(40)
+res3: Boolean = false
+```
+
+
+Scala has several more Set classes, including SortedSet, LinkedHashSet, and more. Please see the (Set class documentation)[https://docs.scala-lang.org/overviews/collections-2.13/sets.html] for more details on those classes.
+
+
+# Anonymous Functions 匿名函数
+
+学习匿名函数可让你更好地理解什么是函数式编程。
+
+首先看下面例子
+
+```scala
+val ints = List(1,2,3)
+
+```
+获取ints每个元素的翻倍数组。
+
+```scala
+val doubledInts = ints.map(_ * 2)
+val doubledInts = ints.map((i: Int) => i * 2)
+val doubledInts = ints.map(i => i * 2)
+```
+以上三种方式都可以。
+
+> 在scala中，_是通配符。
+
+## 匿名函数和filter函数。
+
+```
+
+val ints = List.range(1, 10)
+
+scala> val x = ints.filter(_ > 5)
+x: List[Int] = List(6, 7, 8, 9)
+
+scala> val x = ints.filter(_ < 5)
+x: List[Int] = List(1, 2, 3, 4)
+
+scala> val x = ints.filter(_ % 2 == 0)
+x: List[Int] = List(2, 4, 6, 8)
+```
+
+## 稍稍往下挖一点
+
+你可能想知道**map**和**filter**是怎么运行的。简短的回答就是map要求一个函数，这个函数将输入转化为另一个数。filter就是要求一个函数，输入参数返回一个布尔类型的数。
+
+所以下面的写法是可行的
+
+```scala
+val ints = List(1,2,3)
+def double(i: Int): Int = i * 2   //a method that doubles an Int
+val doubledInts = ints.map(double)
+```
+
+```scala
+def lessThanFive(i: Int): Boolean = if (i < 5) true else false
+
+//or more concisely, like this:
+
+def lessThanFive(i: Int): Boolean = (i < 5)
+
+
+
+val ints = List.range(1, 10)
+val y = ints.filter(lessThanFive)
+```
+
+
+
+# 一般的序列方法
+
+scala集合类的强大之处在于他们准备了很多的预建函数。其中一个收益之处就是你不再需要自定义一个for循环去操作集合。
+
+我们只展示最常用的函数给你：
+
+* map
+* filter
+* foreach
+* head
+* tail
+* take, takeWhile
+* drop, dropWhile
+* find
+* reduce, fold
+
+## **重要注意点**
+这些方法不会改变集合，而是返回一个新的集合。
+
+```scala
+scala> val nums = (1 to 10).toList
+nums: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+scala> val names = List("joel", "ed", "chris", "maurice")
+names: List[String] = List(joel, ed, chris, maurice)
+
+```
+
+## 简单的list例子
+
+```scala
+scala> val nums = (1 to 10).toList
+nums: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+scala> val names = List("joel", "ed", "chris", "maurice")
+names: List[String] = List(joel, ed, chris, maurice)
+```
+
+#### map方法
+
+**map**方法会对列表的每一个元素应用你的算法。然后会返回一个由你改变的元素组成的新的列表。
+
+
+
+```scala
+cala> val doubles = nums.map(_ * 2)
+doubles: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+```
+
+也可以书写一个匿名函数
+
+```scala
+scala> val doubles = nums.map(i => i * 2)
+doubles: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+
+```
+不过在本课程当中，我们总是用第一个，因为它更简短。
+
+```scala
+scala> val capNames = names.map(_.capitalize)
+capNames: List[String] = List(Joel, Ed, Chris, Maurice)
+
+scala> val doubles = nums.map(_ * 2)
+doubles: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+
+scala> val lessThanFive = nums.map(_ < 5)
+lessThanFive: List[Boolean] = List(true, true, true, true, false, false, false, false, false, false)
+```
+上面的例子说明，你可以合法返回一个和原来类型不一样的列表。
+
+#### filter方法
+filter方法从一个给定的列表中返回一个新的过滤过的列表。
+```scala
+scala> val lessThanFive = nums.filter(_ < 5)
+lessThanFive: List[Int] = List(1, 2, 3, 4)
+
+scala> val evens = nums.filter(_ % 2 == 0)
+evens: List[Int] = List(2, 4, 6, 8, 10)
+
+scala> val shortNames = names.filter(_.length <= 4)
+shortNames: List[String] = List(joel, ed)
+```
+上面的方法用map就是返回bool类型列表了。
+
+
+#### foreach
+
+foreach用来循环集合中的所有元素。就像之前我们在课程中提到的，foreach是用来提供副作用的。比如输出信息。
+
+
+```scala
+
+scala> names.foreach(println)
+joel
+ed
+chris
+maurice
+```
+
+**num**list有一点长，所以我们不想完全输出它。
+```scala
+scala> nums.filter(_ < 4).foreach(println)
+1
+2
+3
+```
+
+#### head方法
+head方法从Lisp和函数式编程语言中来。它用来打印列表的头元素。
+```scala
+scala> nums.head
+res0: Int = 1
+
+scala> names.head
+res1: String = joel
+```
+因为字符串也是列表，所以也可进行head、。
+```scala
+scala> "foo".head
+res2: Char = f
+
+scala> "bar".head
+res3: Char = b
+```
+
+#### tail
+
+tail和head一样 ，来自于Lisp和函数式编程语言。它用来打印每一个在head后面的元素。
+```scala
+scala> nums.tail
+res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+scala> names.tail
+res1: List[String] = List(ed, chris, maurice)
+```
+字符串也可以作用。
+```scala
+scala> "foo".tail
+res2: String = oo
+
+scala> "bar".tail
+res3: String = ar
+```
+
+#### take, takeWhile
+
+这两个方法提供给你一个很好的方式取出元素，去创建一个新列表。
+```scala
+scala> nums.take(1)
+res0: List[Int] = List(1)
+
+scala> nums.take(2)
+res1: List[Int] = List(1, 2)
+
+scala> names.take(1)
+res2: List[String] = List(joel)
+
+scala> names.take(2)
+res3: List[String] = List(joel, ed)
+
+scala> nums.takeWhile(_ < 5)
+res4: List[Int] = List(1, 2, 3, 4)
+
+scala> names.takeWhile(_.length < 5)
+res5: List[String] = List(joel, ed)
+```
+####  drop, dropWhile
+
+这两个函数是上面两个函数的对应相反的函数。
+```scala
+scala> nums.drop(1)
+res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+scala> nums.drop(5)
+res1: List[Int] = List(6, 7, 8, 9, 10)
+
+scala> names.drop(1)
+res2: List[String] = List(ed, chris, maurice)
+
+scala> names.drop(2)
+res3: List[String] = List(chris, maurice)
+
+scala> nums.dropWhile(_ < 5)
+res4: List[Int] = List(5, 6, 7, 8, 9, 10)
+
+scala> names.dropWhile(_ != "chris")
+res5: List[String] = List(chris, maurice)
+```
+
+#### reduce
+When you hear the term, “map reduce,” the “reduce” part refers to methods like reduce. It takes a function (or anonymous function) and applies that function to successive elements in the list.
+
+The best way to explain reduce is to create a little helper method you can pass into it. For example, this is an add method that adds two integers together, and also gives us some nice debug output:
+```scala
+def add(x: Int, y: Int): Int = {
+    val theSum = x + y
+    println(s"received $x and $y, their sum is $theSum")
+    theSum
+}
+```
+Now, given that method and this list:
+```scala
+
+val a = List(1,2,3,4)
+this is what happens when you pass the add method into reduce:
+
+scala> a.reduce(add)
+received 1 and 2, their sum is 3
+received 3 and 3, their sum is 6
+received 6 and 4, their sum is 10
+res0: Int = 10
+```
+As that result shows, reduce uses add to reduce the list a into a single value, in this case, the sum of the integers in the list.
+
+Once you get used to reduce, you’ll write a “sum” algorithm like this:
+```scala
+scala> a.reduce(_ + _)
+res0: Int = 10
+Similarly, this is what a “product” algorithm looks like:
+
+scala> a.reduce(_ * _)
+res1: Int = 24
+
+```
+
+That might be a little mind-blowing if you’ve never seen it before, but after a while you’ll get used to it.
+
+> Before moving on, an important part to know about reduce is that — as its name implies — it’s used to reduce a collection down to a single value.
+
+## 总结
+
+这些方法让你远离书写for循环。但是本书不会完全的覆盖介绍，详细见[ the collections overview of sequence traits.](https://docs.scala-lang.org/overviews/collections-2.13/seqs.html)
+
+TODO
+https://docs.scala-lang.org/overviews/scala-book/collections-maps.html
