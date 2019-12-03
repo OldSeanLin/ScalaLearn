@@ -2017,5 +2017,542 @@ That might be a little mind-blowing if you’ve never seen it before, but after 
 
 这些方法让你远离书写for循环。但是本书不会完全的覆盖介绍，详细见[ the collections overview of sequence traits.](https://docs.scala-lang.org/overviews/collections-2.13/seqs.html)
 
-TODO
-https://docs.scala-lang.org/overviews/scala-book/collections-maps.html
+# 普通的map的方法（map是个类，不是前面提到的函数）
+在这节课，我们将会阐述一些被用的最多的map方法。在这些初始的例子中，我们将会使用immutable的map
+
+给定一个不可变的map：
+```scala
+val m = Map(
+    1 -> "a", 
+    2 -> "b", 
+    3 -> "c",
+    4 -> "d"
+)
+```
+
+下面是map可用函数的例子：
+```scala
+// how to iterate over Map elements
+scala> for ((k,v) <- m) printf("key: %s, value: %s\n", k, v)
+key: 1, value: a
+key: 2, value: b
+key: 3, value: c
+key: 4, value: d
+
+// how to get the keys from a Map
+scala> val keys = m.keys
+keys: Iterable[Int] = Set(1, 2, 3, 4)
+
+// how to get the values from a Map
+scala> val values = m.values
+val values: Iterable[String] = MapLike.DefaultValuesIterable(a, b, c, d)
+
+// how to test if a Map contains a value
+scala> val contains3 = m.contains(3)
+contains3: Boolean = true
+
+// how to transform Map values
+scala> val ucMap = m.transform((k,v) => v.toUpperCase)
+ucMap: scala.collection.immutable.Map[Int,String] = Map(1 -> A, 2 -> B, 3 -> C, 4 -> D)
+
+// how to filter a Map by its keys
+scala> val twoAndThree = m.view.filterKeys(Set(2,3)).toMap
+twoAndThree: scala.collection.immutable.Map[Int,String] = Map(2 -> b, 3 -> c)
+
+// how to take the first two elements from a Map
+scala> val firstTwoElements = m.take(2)
+firstTwoElements: scala.collection.immutable.Map[Int,String] = Map(1 -> a, 2 -> b)
+
+```
+> Note that the last example probably only makes sense for a sorted Map.
+
+## Mutable Map examples
+
+给定一个初始化的可变map：
+```scala
+val states = scala.collection.mutable.Map(
+    "AL" -> "Alabama", 
+    "AK" -> "Alaska"
+)
+```
+下面是你可以对可变map做的操作。
+```scala
+// add elements with +=
+states += ("AZ" -> "Arizona")
+states += ("CO" -> "Colorado", "KY" -> "Kentucky")
+
+// remove elements with -=
+states -= "KY"
+states -= ("AZ", "CO")
+
+// update elements by reassigning them
+states("AK") = "Alaska, The Big State"
+
+// retain elements by supplying a function that operates on
+// the keys and/or values
+states.retain((k,v) => k == "AK")
+```
+## see also
+见[ Map class documentation](https://docs.scala-lang.org/overviews/collections-2.13/maps.html)获取更多细节和例子。
+[见博客看"->","=>"的区别](https://blog.csdn.net/someInNeed/article/details/90047624)
+
+# Tuples
+tuple是一个简洁的类，这个类可以存储异质的项在一个容器里。举个例子，假设你有一个下面的类：
+```scala
+class Person(var name: String)
+```
+你不用像下面那样创建一个数据类去存储它：
+```scala
+class SomeThings(i: Int, s: String, p: Person)
+```
+而是可以用tuple：
+```scala
+val t = (3, "Three", new Person("Al"))
+
+```
+
+就像展示得那样，你直接把一些元素放入圆括号即可。
+**tuple**可以包含2到22个项。这些人类名分别为Tuple2,...,Tuple22
+
+## 更多得细节
+
+这里有两个双元素得tuple
+
+```scala
+scala> val d = ("Maggie", 30)
+d: (String, Int) = (Maggie,30)
+```
+三元素tuple
+```scala
+scala> case class Person(name: String)
+defined class Person
+
+scala> val t = (3, "Three", new Person("David"))
+t: (Int, java.lang.String, Person) = (3,Three,Person(David))
+
+```
+
+有好几种访问元素的方式，其中一种就是用索引访问。每一个索引值前面都有一个前缀'_'
+
+```scala
+scala> t._1
+res1: Int = 3
+
+scala> t._2
+res2: java.lang.String = Three
+
+scala> t._3
+res3: Person = Person(David)
+```
+
+其他可以炫酷访问的方式。
+
+```scala
+
+scala> val(x, y, z) = (3, "Three", new Person("David"))
+x: Int = 3
+y: String = Three
+z: Person = Person(Al)
+
+```
+
+## Returning a tuple from a method
+
+你想像python一样返回多个数值？python使用了元组，而tuple很像元组。
+
+```scala
+def getStockInfo = {
+    // other code here ...
+    ("NFLX", 100.00, 101.00)  // this is a Tuple3
+}
+
+val (symbol, currentPrice, bidPrice) = getStockInfo
+```
+在java中你要实现上面的返回得要创建专门的类感觉有些多余，所以tuple十分方便。
+
+> 
+## 注意
+
+tuple不是集合，所有集合方法如：map、filter、etc都无法使用。
+
+# 一个面向对象的例子(AN OOP EXAMPLE)
+
+https://docs.scala-lang.org/overviews/scala-book/oop-pizza-example.html 讲了oop编程的例子，就不再翻译了。
+
+
+# SBT and ScalaTest
+在下一节课，你将看到一对常用的工具。
+
+* SBT build tool
+* Scala Test
+
+# SBT
+你可以用Ant、Maven、Gradle构建scala项目。但是一个名叫SBT的工具是首选。
+
+由于不涉及编程以及项目没用到它，就不学习了。以后如果有机会用到可以看下面的网址。
+
+https://docs.scala-lang.org/overviews/scala-book/scala-build-tool-sbt.html
+
+# ScalaTest
+ScalaTest是一个测试框架，很像java中的Junit
+
+和上一节一样原因，就不学习了。
+
+https://docs.scala-lang.org/overviews/scala-book/sbt-scalatest-tdd.html
+
+# BDD测试风格
+参考：
+
+https://docs.scala-lang.org/overviews/scala-book/sbt-scalatest-bdd. 
+                     
+https://dannorth.net/introducing-bdd/     
+                                                         
+                                                           
+https://baike.baidu.com/item/%E8%A1%8C%E4%B8%BA%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/9424963?fromtitle=BDD&fromid=10735732&fr=aladdin                   
+https://blog.csdn.net/Testfan_zhou/article/details/90898603 
+
+
+
+# 函数式编程
+
+我们将介绍scala支持函数式编程。
+
+函数式编程式一种强调只使用纯碎的函数和不可变变量的编程风格。与其用这种描述，不如说程序员有一种强烈的渴望把他们的代码看作数学--把他们的函数看成一系列的代数等式。in that regard，你可以说程序员作为数学家。这种强烈的渴望使他们只用纯粹的函数以及不可变变量，因为在代数和其他形式的数学中也是这样使用得。
+
+函数式编程是一个巨大的话题，这里只用一种简单的方式把整个话题压缩入这本小小的书中，但是在接下来的课程中，我们将让你体味函数编程，并展示一些scala提供给开发者的函数式编程工具。
+
+# pure function
+
+pure function 的定义：
+
+* 函数的输出只和它的输入有关。 
+* 它不会改变任何隐状态。
+* 它不会从外部世界读取数据，包括控制台，web服务，数据，文件等。也不会把数据写到外部世界。
+
+按照这种定义，函数相同的输入会有相同的输出。
+
+
+## Examples of pure functions
+Given that definition of pure functions, as you might imagine, methods like these in the scala.math._ package are pure functions:
+
+* abs
+* ceil
+* max
+* min
+These Scala String methods are also pure functions:
+
+* isEmpty
+* length
+* substring
+Many methods on the Scala collections classes also work as pure functions, including drop, filter, and map.
+
+## Examples of impure functions
+相反地，下面一些非纯粹函数的列子，因为它们违反了定义。
+
+**foreach**函数式不纯粹的，因为它只用来产生副作用，比如标准输出。
+
+>一个明显的线索关于**foreach**不纯粹是它的签名声明--它返回类型是**Unit**。因为它不反回任何东西，所以逻辑上调用它只能取得副作用。同样的任何返回**Unit**的函数都不是纯粹函数。
+
+Data和time相关函数如：getDayOfWeek, getHour, and getMinute都是不纯粹的，因为它们的输出不依赖它们的输入。
+
+
+In general, impure functions do one or more of these things:
+
+* Read hidden inputs, i.e., they access variables and data not explicitly passed into the function as input parameters
+* Write hidden outputs
+* Mutate the parameters they are given
+* Perform some sort of I/O with the outside world
+
+## But impure functions are needed …
+
+当然一个不能读写外部世界的应用是毫无用处的，所以一些人如下建议：
+```
+Write the core of your application using pure functions, and then write an impure “wrapper” around that core to interact with the outside world. If you like food analogies, this is like putting a layer of impure icing on top of a pure cake.
+```
+
+## 书写纯粹函数
+
+在scala中书写纯粹函数是一件很简单的事情，只需要用scala函数语法书写。
+
+书写翻倍函数：
+
+```scala
+def double(i: Int): Int = i * 2
+```
+
+尽管本书没有覆盖递归，但我们仍给出富有挑战性的例子：对整数列表求和。（其实我没有看懂）
+```scala
+def sum(list: List[Int]): Int = list match {
+    case Nil => 0//Nil是空List 
+    case head :: tail => head + sum(tail)//lsit相等于head类和tail类组成。
+}
+
+```
+[模式匹配](https://blog.csdn.net/Pengjx2014/article/details/82505337)
+[list高级操作](https://blog.csdn.net/yuan_xw/article/details/49100627)
+[match博客](https://blog.csdn.net/Next__One/article/details/77666782)
+
+```
+4种操作符的区别和联系
+
+(1) :: 该方法被称为cons，意为构造，向队列的头部追加数据，创造新的列表。用法为 x::list,其中x为加入到头部的元素，无论x是列表与否，它都只将成为新生成列表的第一个元素，也就是说新生成的列表长度为list的长度＋1(btw, x::list等价于list.::(x))
+
+(2) :+和+: 两者的区别在于:+方法用于在尾部追加元素，+:方法用于在头部追加元素，和::很类似，但是::可以用于pattern match ，而+:则不行. 关于+:和:+,只要记住冒号永远靠近集合类型就OK了。
+
+(3) ++ 该方法用于连接两个集合，list1++list2
+
+(4) ::: 该方法只能用于连接两个List类型的集合
+————————————————
+版权声明：本文为CSDN博主「pantherCode」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/liu136313/article/details/79012626
+
+```
+
+#  Passing Function Around
+
+
+FP的一个特性是允许你将函数作为变量，也就是说你可以把它作为函数的参数。之前在本书中看到的**map**和**filter**就是这样展现的：
+
+```scala
+val nums = (1 to 10).toList
+
+val doubles = nums.map(_ * 2)
+val lessThanFive = nums.filter(_ < 5)
+```
+
+在那些列子中，匿名函数被传入**map**和**filter**中。在本节中，我们示范下面的例子。
+```scala
+def double(i: Int): Int = i * 2   //a method that doubles an Int
+val doubles = nums.map(double)
+```
+
+>如果你喜欢非正式的说法，也可以说是一个类把另外一个类的带参构造器作为参数。
+
+
+# No Null Values
+
+Functional programming is like writing a series of algebraic equations, and because you don’t use null values in algebra, you don’t use null values in FP. That brings up an interesting question: In the situations where you might normally use a null value in Java/OOP code, what do you do?
+
+Scala’s solution is to use constructs like the Option/Some/None classes. We’ll provide an introduction to the techniques in this lesson.
+
+## A first example
+
+尽管第一个例子并没有处理空值问题，但是这也是一个很好的方式展示Option/Some/None类，所以我们从此开始。
+
+
+想象一下，你想要写一个函数去转换String到Integer，然后你还想写一个优雅的方式去处理异常，比如当你得到一个String：“foo”而不是类似像“1”，抛出异常。
+
+面对这样的函数，初步猜想可能是下面这样。
+```scala
+def toInt(s: String): Int = {
+    try {
+        Integer.parseInt(s.trim)
+    } catch {
+        case e: Exception => 0
+    }
+}
+```
+这样的函数在发生转换异常时返回0，但是这就不能知道你是真的接受一个“0”还是其他的未定义字符串。
+
+## Using Option/Some/None
+
+scala 的解决方案就是使用三个类，**Option/Some/None**。**Some**，**None**是**Option**的子类。
+所以解决方案是下面这样的：
+
+
+* 你申明toInt函数，反悔Option
+* 如果toInt接受字符串参数可以转换为Integer就封装入Some。
+* 如果toInt不能转换，就返回None。
+
+```scala
+def toInt(s: String): Option[Int] = {
+    try {
+        Some(Integer.parseInt(s.trim))
+    } catch {
+        case e: Exception => None
+    }
+}
+```
+
+```scala
+scala> val a = toInt("1")
+a: Option[Int] = Some(1)
+
+scala> val a = toInt("foo")
+a: Option[Int] = None
+```
+处理Null时也可以采用上面的方法。
+
+
+## 详解Option[T]
+在Scala里Option[T]实际上是一个容器，就像数组或是List一样，你可以把他看成是一个可能有零到一个元素的List。
+当你的Option里面有东西的时候，这个List的长度是1（也就是 Some），而当你的Option里没有东西的时候，它的长度是0（也就是 None）。
+
+for循环
+如果我们把Option当成一般的List来用，并且用一个for循环来走访这个Option的时候，如果Option是None，那这个for循环里的程序代码自然不会执行，于是我们就达到了不用检查Option是否为None这件事。
+
+
+```
+scala> val map1 = Map("key1" -> "value1")
+map1: scala.collection.immutable.Map[String,String] = Map(key1 -> value1)
+ 
+scala> val value1 = map1.get("key1")
+value1: Option[String] = Some(value1)
+ 
+scala> val value2 = map1.get("key2")
+value2: Option[String] = None
+ 
+scala> def printContentLength(x: Option[String]) {
+     |   for (c <- x){
+     |     println(c.length)
+     |   }
+     | }
+printContentLength: (x: Option[String])Unit
+ 
+scala> printContentLength(value1)
+6
+ 
+scala> printContentLength(value2)
+
+```
+## map操作
+在函数式编程中有一个核心的概念之一是转换，所以大部份支持函数式编程语言，都支持一种叫map()的动作，这个动作是可以帮你把某个容器的内容，套上一些动作之后，变成另一个新的容器。
+现在我们考虑如何用Option的map方法实现length: xxx的输出形式：
+
+ 
+
+/**先算出 Option 容器内字符串的长度
+然后在长度前面加上 "length: " 字样
+最后把容器走访一次，印出容器内的东西*/
+
+```
+scala> value1.map(_.length).map("length: " + _).foreach(println)
+length: 6
+ 
+scala> value1.map("length: " + _.length).foreach(println)
+length: 6
+
+```
+透过这样「转换」的方法，我们一样可以达成想要的效果，而且同样不用去做「是否为 None」的判断。
+
+## Being a consumer of toInt
+作为toInt的消费之，你怎么去处理其返回值？
+
+有两种主要的回答：
+* 使用match表达式
+* 使用for表达式
+
+### Using a match expression
+
+```scala
+
+toInt(x) match {
+    case Some(i) => println(i)
+    case None => println("That didn't work.")
+}
+```
+在本例中，如果x被转换为Int，那么第一个case的语句就会被执行。反之，执行第二个情形的语句。
+### Using for/yield
+
+
+```scala
+val y = for {
+    a <- toInt(stringA)
+    b <- toInt(stringB)
+    c <- toInt(stringC)
+} yield a + b + c
+val stringA = "1"
+val stringB = "2"
+val stringC = "3"
+
+scala> val y = for {
+     |     a <- toInt(stringA)
+     |     b <- toInt(stringB)
+     |     c <- toInt(stringC)
+     | } yield a + b + c
+y: Option[Int] = Some(6)
+
+//As shown, y is bound to the value Some(6).
+
+//To see the failure case, change any of those strings to something that won’t convert to an integer. When you do that, you’ll see that y is a None:
+
+y: Option[Int] = None
+```
+
+## Options can be thought of as a container of 0 or 1 items
+
+option可以看作0或者1个元素容器。
+
+ * Some is a container with one item in it
+ * None is a container, but it has nothing in it
+
+ ## Using foreach
+
+ 因为Some和None可以被认为是容器，他们可以被看作是集合类。As a result, they have all of the methods you’d expect from a collection class, including map, filter, foreach, etc.
+
+这就带来一个有趣的问题，下面两个会打印出啥东西？
+```scala
+
+toInt("1").foreach(println)
+toInt("x").foreach(println)
+```
+
+答案是，前者打印1，后者啥都不打印。
+
+## Using Option to replace null values
+
+```scala
+class Address (
+    var street1: String,
+    var street2: String,
+    var city: String, 
+    var state: String, 
+    var zip: String
+)
+
+
+val santa = new Address(
+    "1 Main Street",
+    null,               // <-- D'oh! A null value!
+    "North Pole",
+    "Alaska",
+    "99705"
+)
+```
+
+解决方案：
+
+```scala
+class Address (
+    var street1: String,
+    var street2: Option[String],
+    var city: String, 
+    var state: String, 
+    var zip: String
+)
+```
+根据这定义的函数，开发者写正确的函数：
+```scala
+val santa = new Address(
+    "1 Main Street",
+    None,
+    "North Pole",
+    "Alaska",
+    "99705"
+)
+```
+或者
+```scala
+val santa = new Address(
+    "123 Main Street",
+    Some("Apt. 2B"),
+    "Talkeetna",
+    "Alaska",
+    "99676"
+)
+```
+
+## Option isn’t the only solution
+
+This lesson focused on the** Option/Some/None **solution, but Scala has a few other alternatives. For example, a trio of classes known as **Try/Success/Failure **work in the same manner, but a) you primarily use these classes when code can throw exceptions, and b) the Failure class gives you access to the exception message. For example, **Try/Success/Failure **is commonly used when writing methods that interact with files, databases, and internet services, as those functions can easily throw exceptions. These classes are demonstrated in the Functional Error Handling lesson that follows.
+
