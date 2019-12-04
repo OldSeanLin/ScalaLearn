@@ -7,7 +7,36 @@ log：有些章节没有翻译，仅供学习交流
 
 # 目录
 
+<!-- TOC -->
 
+- [目录](#目录)
+- [helloworld](#helloworld)
+            - [讨论](#讨论)
+- [helloword的另一个版本](#helloword的另一个版本)
+- [the scala REPL](#the-scala-repl)
+- [两种类型的变量](#两种类型的变量)
+    - [val和var的不同：](#val和var的不同)
+- [显式指明类型](#显式指明类型)
+- [scala的内建类型](#scala的内建类型)
+    - [数据类型以及他们的范围：](#数据类型以及他们的范围)
+    - [大数：BigInt and BigDecimal](#大数bigint-and-bigdecimal)
+    - [String and Char](#string-and-char)
+- [String](#string)
+- [命令行I/O](#命令行io)
+    - [输出](#输出)
+    - [输入](#输入)
+- [流程控制](#流程控制)
+    - [if](#if)
+    - [for](#for)
+        - [对map使用for和foreach](#对map使用for和foreach)
+    - [match表达式](#match表达式)
+    - [try/catch/finally expression](#trycatchfinally-expression)
+- [Classes](#classes)
+    - [基础类的构造器](#基础类的构造器)
+    - [val使得字段只读](#val使得字段只读)
+    - [类的构造器](#类的构造器)
+
+<!-- /TOC -->
 
 
 # helloworld

@@ -33,7 +33,7 @@ def convertTOC(titles):
         sharp=t.lstrip().split(" ")[0]
         tabNum=len(sharp)
         t2=t[tabNum+1:].replace(" ","-").replace("_","").replace(".","").replace("*","").lower()
-        t1=" "*tabNum
+        t1="   "*tabNum
         toc = "%s- [%s](#%s)"%(t1,t[tabNum+1:],t2)
         print(toc)
     end="<!-- /TOC -->"
